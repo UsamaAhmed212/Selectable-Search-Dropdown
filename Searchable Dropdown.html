@@ -1,25 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom Searchable Dropdown</title>
     <style>
+        /* Searchable Dropdown container */
+        .searchableDropdown {
+            position: relative;
+            display: inline-block;
+            width: 200px;
+        }
+        
         /* Input field */
-        #searchInput {
+        .searchableDropdown input {
             width: 200px;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
-        }
-
-        /* Dropdown container */
-        .dropdown {
-            position: relative;
-            display: inline-block;
-            width: 200px;
         }
 
         /* Dropdown list */
@@ -49,66 +48,104 @@
         }
     </style>
 </head>
-
 <body>
 
-    <h3>Searchable Dropdown</h3>
-    <div class="dropdown">
-        <input type="text" id="searchInput" placeholder="Search for an item...">
-        <div class="dropdown-content" id="dropdownList">
-            <div data-value="Rice">Rice - চাল</div>
-            <div data-value="Sugar">Sugar - চিনি</div>
-            <div data-value="Flour">Flour - ময়দা</div>
-            <div data-value="Cooking Oil">Cooking Oil - তৈল</div>
-            <div data-value="Salt">Salt - লবণ</div>
-            <div data-value="Eggs">Eggs - ডিম</div>
-            <div data-value="Red Chilli">Red Chilli - লাল মরিচ</div>
-            <div data-value="Garlic">Garlic - রসুন</div>
-            <div data-value="Ginger">Ginger - আদা</div>
-        </div>
+<h3>Searchable Dropdown</h3>
+<div class="searchableDropdown">
+    <input type="text" placeholder="Search for an item...">
+    <div class="dropdown-content">
+        <div data-value="Rice">Rice - চাল</div>
+        <div data-value="Sugar">Sugar - চিনি</div>
+        <div data-value="Flour">Flour - ময়দা</div>
+        <div data-value="Cooking Oil">Cooking Oil - তৈল</div>
+        <div data-value="Salt">Salt - লবণ</div>
+        <div data-value="Eggs">Eggs - ডিম</div>
+        <div data-value="Red Chilli">Red Chilli - লাল মরিচ</div>
+        <div data-value="Garlic">Garlic - রসুন</div>
+        <div data-value="Ginger">Ginger - আদা</div>
     </div>
+</div>
 
-    <script>
+<!-- <h3>Searchable Dropdown 01</h3>
+<div class="searchableDropdown">
+    <input type="text" placeholder="Search for an item...">
+    <div class="dropdown-content">
+        <div data-value="Rice">Rice - চাল  01</div>
+        <div data-value="Sugar">Sugar - চিনি  01</div>
+        <div data-value="Flour">Flour - ময়দা  01</div>
+        <div data-value="Cooking Oil">Cooking Oil - তৈল  01</div>
+        <div data-value="Salt">Salt - লবণ  01</div>
+        <div data-value="Eggs">Eggs - ডিম  01</div>
+        <div data-value="Red Chilli">Red Chilli - লাল মরিচ  01</div>
+        <div data-value="Garlic">Garlic - রসুন  01</div>
+        <div data-value="Ginger">Ginger - আদা  01</div>
+    </div>
+</div> -->
+
+<script>
+    // Initialize dropdown functionality for each dropdown
+    document.querySelectorAll('.searchableDropdown').forEach(dropdown => {
         let selectedIndex = -1; // Tracks the currently selected item in the dropdown
         let scrollInterval = null; // Stores interval for continuous scrolling
 
+        const input = dropdown.querySelector('input');
+        const dropdownContent = dropdown.querySelector('.dropdown-content');
+
         // Event listener for keyup (handles search and navigation)
-        document.getElementById("searchInput").addEventListener("keyup", function (event) {
-            if (event.key === "Enter") selectHighlightedItem(); // Select the highlighted item on Enter
-            if (event.key !== "Enter") handleSearch(); // Filter dropdown items based on input
+        input.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') selectHighlightedItem(dropdown); // Select the highlighted item on Enter
+            if (event.key !== 'Enter') handleSearch(dropdown); // Filter dropdown items based on input
         });
 
         // Event listener for focus (shows filtered dropdown items)
-        document.getElementById("searchInput").addEventListener("focus", function () {
-            handleSearch(); // Ensure dropdown updates when focused
+        input.addEventListener('focus', function() {
+            handleSearch(dropdown); // Ensure dropdown updates when focused
             selectedIndex = -1; // Reset selected index
         });
 
         // Event listener to close dropdown when clicking outside
-        document.addEventListener("click", function (event) {
-            let dropdown = document.querySelector(".dropdown");
-            if (!dropdown.contains(event.target)) hideDropdown(); // Hide dropdown if clicked outside
+        document.addEventListener('click', function(event) {
+            if (!dropdown.contains(event.target)) hideDropdown(dropdown); // Hide dropdown if clicked outside
         });
 
         // Function to filter and display dropdown items based on input
-        function handleSearch() {
-            let input = document.getElementById("searchInput").value.toUpperCase();
-            let dropdownList = document.getElementById("dropdownList");
-            let items = dropdownList.querySelectorAll("div");
+        function handleSearch(dropdown) {
+            const inputValue = dropdown.querySelector('input').value.toUpperCase();
+            const items = dropdown.querySelectorAll('.dropdown-content div');
 
-            dropdownList.style.display = "block"; // Show dropdown
+            dropdownContent.style.display = 'block'; // Show dropdown
 
             // Loop through each item and check if it matches the search input
             items.forEach(item => {
-                let txtValue = item.textContent || item.innerText;
-                item.style.display = txtValue.toUpperCase().includes(input) ? "" : "none"; // Show/hide item
+                const txtValue = item.textContent || item.innerText;
+                item.style.display = txtValue.toUpperCase().includes(inputValue) ? '' : 'none'; // Show/hide item
             });
         }
 
+        // Function to select the currently highlighted item when pressing Enter
+        function selectHighlightedItem(dropdown) {
+            const items = dropdown.querySelectorAll('.dropdown-content div');
+            const visibleItems = Array.from(items).filter(item => item.style.display !== 'none');
+
+            // Remove Highlight the selected item
+            visibleItems.forEach((item, index) => {
+                // Hide the item by setting display to 'none'
+                item.style.display = 'none';
+
+                // Remove the 'selected' class from the item
+                item.classList.remove('selected');
+            });
+
+            if (visibleItems.length) {
+                const index = selectedIndex >= 0 ? selectedIndex : 0;
+                selectItem(dropdown, visibleItems[index]?.textContent.trim());
+            }
+        }
+        
         // Function to move selection up/down in the dropdown
-        function navigateDropdown(direction) {
-            let items = document.querySelectorAll("#dropdownList div");
-            let visibleItems = Array.from(items).filter(item => item.style.display !== "none"); // Get only visible items
+        function navigateDropdown(dropdown, direction) {
+            const items = dropdown.querySelectorAll('.dropdown-content div');
+            const visibleItems = Array.from(items).filter(item => item.style.display !== 'none'); // Get only visible items
 
             if (visibleItems.length === 0) return; // Stop if no visible items
 
@@ -122,86 +159,68 @@
 
             // Highlight the selected item
             visibleItems.forEach((item, index) => {
-                item.classList.toggle("selected", index === selectedIndex);
+                item.classList.toggle('selected', index === selectedIndex);
             });
 
-            scrollIntoView(visibleItems[selectedIndex]); // Ensure selected item is in view
+            scrollIntoView(dropdown, visibleItems[selectedIndex]); // Ensure selected item is in view
         }
 
-
         // Function to scroll the selected item into view if it's out of bounds
-        function scrollIntoView(selectedItem) {
+        function scrollIntoView(dropdown, selectedItem) {
             if (!selectedItem) return; // Do nothing if no item is selected
 
-            let dropdown = document.getElementById("dropdownList");
-            let itemTop = selectedItem.offsetTop;
-            let itemBottom = itemTop + selectedItem.offsetHeight;
-            let dropdownTop = dropdown.scrollTop;
-            let dropdownBottom = dropdownTop + dropdown.offsetHeight;
+            const dropdownContent = dropdown.querySelector('.dropdown-content');
+            const itemTop = selectedItem.offsetTop;
+            const itemBottom = itemTop + selectedItem.offsetHeight;
+            const dropdownTop = dropdownContent.scrollTop;
+            const dropdownBottom = dropdownTop + dropdownContent.offsetHeight;
 
             // Scroll down if selected item is below visible area
-            if (itemBottom > dropdownBottom) dropdown.scrollTop = itemBottom - dropdown.offsetHeight;
+            if (itemBottom > dropdownBottom) dropdownContent.scrollTop = itemBottom - dropdownContent.offsetHeight;
 
             // Scroll up if selected item is above visible area
-            if (itemTop < dropdownTop) dropdown.scrollTop = itemTop;
+            if (itemTop < dropdownTop) dropdownContent.scrollTop = itemTop;
         }
 
         // Function to select an item and update the input field
-        function selectItem(value) {
-            document.getElementById("searchInput").value = value; // Set input value to selected item
-            hideDropdown(); // Hide dropdown after selection
+        function selectItem(dropdown, value) {
+            dropdown.querySelector('input').value = value; // Set input value to selected item
+            hideDropdown(dropdown); // Hide dropdown after selection
             selectedIndex = -1; // Reset selected index
         }
 
         // Attach event listeners to each item dynamically
-        document.querySelectorAll('#dropdownList div[data-value]').forEach(item => {
-            item.addEventListener('click', function () {
-                // const value = this.getAttribute('data-value'); // Get the value from the data attribute
-                // selectItem(value);
-                selectItem(this.textContent.trim());
+        dropdown.querySelectorAll('.dropdown-content div[data-value]').forEach(item => {
+            item.addEventListener('click', function() {
+                selectItem(dropdown, this.textContent.trim());
             });
         });
 
-        // Function to select the currently highlighted item when pressing Enter
-        function selectHighlightedItem() {
-            let items = document.querySelectorAll("#dropdownList div");
-            let visibleItems = Array.from(items).filter(item => item.style.display !== "none");
-
-            // Remove Highlight the selected item
-            visibleItems.forEach((item, index) => {
-                item.classList.remove('selected');
-            });
-
-            if (visibleItems.length) {
-                let index = selectedIndex >= 0 ? selectedIndex : 0;
-                selectItem(visibleItems[index]?.textContent.trim());
-            }
-        }
-
         // Function to hide the dropdown list
-        function hideDropdown() {
-            document.getElementById("dropdownList").style.display = "none"; // Hide dropdown
+        function hideDropdown(dropdown) {
+            dropdown.querySelector('.dropdown-content').style.display = 'none'; // Hide dropdown
         }
 
         // Event listener for keydown (handles continuous scrolling on arrow key long press)
-        document.getElementById("searchInput").addEventListener("keydown", function (event) {
-            if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        input.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
                 event.preventDefault(); // Prevent default scrolling behavior
                 if (!scrollInterval) {
-                    navigateDropdown(event.key === "ArrowDown" ? 1 : -1); // Move once
-                    scrollInterval = setInterval(() => navigateDropdown(event.key === "ArrowDown" ? 1 : -1), 200); // Move continuously (200ms)
+                    navigateDropdown(dropdown, event.key === 'ArrowDown' ? 1 : -1); // Move once
+                    scrollInterval = setInterval(() => navigateDropdown(dropdown, event.key === 'ArrowDown' ? 1 : -1), 200); // Move continuously (200ms)
                 }
             }
         });
 
         // Event listener for keyup to stop continuous scrolling
-        document.getElementById("searchInput").addEventListener("keyup", function (event) {
-            if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        input.addEventListener('keyup', function(event) {
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
                 clearInterval(scrollInterval); // Stop scrolling when key is released
                 scrollInterval = null;
             }
         });
-    </script>
-</body>
+    });
+</script>
 
+</body>
 </html>
