@@ -52,6 +52,7 @@
 
 <h3>Searchable Dropdown</h3>
 <div class="searchableDropdown">
+    <input type="hidden" name="selectedItem">
     <input type="text" placeholder="Search for an item...">
     <div class="dropdown-content">
         <div data-value="Rice">Rice - চাল</div>
@@ -88,17 +89,18 @@
         let selectedIndex = -1; // Tracks the currently selected item in the dropdown
         let scrollInterval = null; // Stores interval for continuous scrolling
 
-        const input = dropdown.querySelector('input');
+        const hiddenInputField = dropdown.querySelector('input[type="hidden"]');
+        const inputField = dropdown.querySelector('input[type="text"]');
         const dropdownContent = dropdown.querySelector('.dropdown-content');
 
         // Event listener for keyup (handles search and navigation)
-        input.addEventListener('keyup', function(event) {
+        inputField.addEventListener('keyup', function(event) {
             if (event.key === 'Enter') selectHighlightedItem(dropdown); // Select the highlighted item on Enter
             if (event.key !== 'Enter') handleSearch(dropdown); // Filter dropdown items based on input
         });
 
         // Event listener for focus (shows filtered dropdown items)
-        input.addEventListener('focus', function() {
+        inputField.addEventListener('focus', function() {
             handleSearch(dropdown); // Ensure dropdown updates when focused
             selectedIndex = -1; // Reset selected index
         });
@@ -110,7 +112,7 @@
 
         // Function to filter and display dropdown items based on input
         function handleSearch(dropdown) {
-            const inputValue = dropdown.querySelector('input').value.toUpperCase();
+            const inputValue = inputField.value.toUpperCase();
             const items = dropdown.querySelectorAll('.dropdown-content div');
 
             dropdownContent.style.display = 'block'; // Show dropdown
@@ -138,7 +140,7 @@
 
             if (visibleItems.length) {
                 const index = selectedIndex >= 0 ? selectedIndex : 0;
-                selectItem(dropdown, visibleItems[index]?.textContent.trim());
+                selectItem(dropdown, visibleItems[index]?.textContent.trim(), visibleItems[index]?.getAttribute('data-value'));
             }
         }
         
@@ -183,8 +185,9 @@
         }
 
         // Function to select an item and update the input field
-        function selectItem(dropdown, value) {
-            dropdown.querySelector('input').value = value; // Set input value to selected item
+        function selectItem(dropdown, value, dataValue = null) {
+            inputField.value = value; // Set inputField value to selected item
+            hiddenInputField.value = dataValue; // Set hiddenInputField value to selected item
             hideDropdown(dropdown); // Hide dropdown after selection
             selectedIndex = -1; // Reset selected index
         }
@@ -192,7 +195,7 @@
         // Attach event listeners to each item dynamically
         dropdown.querySelectorAll('.dropdown-content div[data-value]').forEach(item => {
             item.addEventListener('click', function() {
-                selectItem(dropdown, this.textContent.trim());
+                selectItem(dropdown, this.textContent.trim(), this.getAttribute('data-value'));
             });
         });
 
@@ -202,7 +205,7 @@
         }
 
         // Event listener for keydown (handles continuous scrolling on arrow key long press)
-        input.addEventListener('keydown', function(event) {
+        inputField.addEventListener('keydown', function(event) {
             if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
                 event.preventDefault(); // Prevent default scrolling behavior
                 if (!scrollInterval) {
@@ -213,7 +216,7 @@
         });
 
         // Event listener for keyup to stop continuous scrolling
-        input.addEventListener('keyup', function(event) {
+        inputField.addEventListener('keyup', function(event) {
             if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
                 clearInterval(scrollInterval); // Stop scrolling when key is released
                 scrollInterval = null;
